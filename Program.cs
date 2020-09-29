@@ -25,7 +25,7 @@ namespace PingLogger
                         }
                         if (response.Status == IPStatus.Success)
                         {
-                            logger.Info($"Ping succesful: {response.RoundtripTime}ms. roundtrip.");
+                            logger.Info($"Ping succesful: {response.RoundtripTime}ms. roundtrip. [{response.Address}, {response.Status.ToString()}]");
                         }
                         if (response.Status != IPStatus.Success)
                         {
@@ -40,23 +40,23 @@ namespace PingLogger
         private static PingReply PingHost(string nameOrAddress, int? timeout, SimpleLogger logger)
         {
             Ping pinger = null;
+            PingReply result = null;
 
             try
             {
                 pinger = new Ping();
                 if (timeout == null)
                 {
-                    return pinger.Send(nameOrAddress);
+                    result = pinger.Send(nameOrAddress);
                 } 
                 else
                 {
-                    return pinger.Send(nameOrAddress, timeout.Value);
+                    result = pinger.Send(nameOrAddress, timeout.Value);
                 }
             }
             catch (PingException e)
             {
                 logger.Fatal("Exception: " + e.ToString());
-                return null;
             }
             finally
             {
@@ -65,6 +65,8 @@ namespace PingLogger
                     pinger.Dispose();
                 }
             }
+
+            return result;
         }
     }
 }
